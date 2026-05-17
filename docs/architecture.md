@@ -344,3 +344,74 @@ GovernanceToken V2 (GovernanceTokenV2.sol)
 ```
 
 Future upgrades follow the same pattern: implement `_authorizeUpgrade` in V(n+1), deploy implementation, create Governor proposal calling `upgradeToAndCall`, pass DAO vote, execute after timelock.
+## Subgraph GraphQL Queries
+
+### Query 1 — All markets
+```graphql
+{
+  markets(first: 20, orderBy: createdAt, orderDirection: desc) {
+    id
+    question
+    state
+    winningOutcome
+    initialLiquidity
+    createdAt
+  }
+}
+```
+
+### Query 2 — Recent trades for a market
+```graphql
+{
+  trades(where: { market: "1" }, orderBy: timestamp, orderDirection: desc, first: 10) {
+    id
+    trader
+    outcome
+    amountIn
+    amountOut
+    isBuy
+    timestamp
+  }
+}
+```
+
+### Query 3 — Active governance proposals
+```graphql
+{
+  governanceProposals(where: { state: "Active" }) {
+    id
+    proposer
+    description
+    forVotes
+    againstVotes
+    abstainVotes
+    startBlock
+    endBlock
+  }
+}
+```
+
+### Query 4 — Liquidity positions by provider
+```graphql
+{
+  liquidityPositions(where: { provider: "0xYOUR_ADDRESS" }) {
+    id
+    market { id question }
+    liquidity
+    lastUpdated
+  }
+}
+```
+
+### Query 5 — Protocol global stats
+```graphql
+{
+  protocolStats(id: "global") {
+    totalMarketsCreated
+    totalTradeVolume
+    totalFeesCollected
+    totalLiquidityProvided
+    lastUpdated
+  }
+}
+```
