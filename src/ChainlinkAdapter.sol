@@ -25,7 +25,7 @@ contract ChainlinkAdapter is IOracle, Ownable {
     error InvalidPrice(address feed, int256 price);
     error InvalidRound(address feed);
 
-    constructor(address owner_) Ownable(owner_) {}
+    constructor(address owner_) Ownable(owner_) { }
 
     function setStalenessOverride(address feed, uint256 maxStaleness) external onlyOwner {
         feedStaleness[feed] = maxStaleness;

@@ -27,14 +27,14 @@ contract PMGovernor is
     constructor(IVotes _token, TimelockController _timelock)
         Governor("PM DAO Governor")
         GovernorSettings(
-            7200,   // 1 day voting delay (blocks)
-            50400,  // 1 week voting period (blocks)
-            0       // proposal threshold set via token-based threshold below
+            7200, // 1 day voting delay (blocks)
+            50400, // 1 week voting period (blocks)
+            0 // proposal threshold set via token-based threshold below
         )
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4) // 4% quorum
         GovernorTimelockControl(_timelock)
-    {}
+    { }
 
     /// @notice Proposal threshold: 1% of circulating supply
     function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
@@ -51,21 +51,11 @@ contract PMGovernor is
         return super.votingPeriod();
     }
 
-    function quorum(uint256 blockNumber)
-        public
-        view
-        override(Governor, GovernorVotesQuorumFraction)
-        returns (uint256)
-    {
+    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
         return super.quorum(blockNumber);
     }
 
-    function state(uint256 proposalId)
-        public
-        view
-        override(Governor, GovernorTimelockControl)
-        returns (ProposalState)
-    {
+    function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
         return super.state(proposalId);
     }
 

@@ -33,17 +33,23 @@ contract PredictionMarket is AccessControl, ReentrancyGuard {
     MarketAMM public immutable amm;
     ChainlinkAdapter public immutable oracle;
 
-    enum MarketState { CREATED, ACTIVE, DISPUTE, RESOLVED, CLOSED }
+    enum MarketState {
+        CREATED,
+        ACTIVE,
+        DISPUTE,
+        RESOLVED,
+        CLOSED
+    }
 
     struct Market {
         string question;
-        address resolutionFeed;    // Chainlink feed for resolution
+        address resolutionFeed; // Chainlink feed for resolution
         int256 resolutionThreshold; // price threshold for YES outcome
         uint256 createdAt;
         uint256 resolvedAt;
         uint256 initialLiquidity;
         MarketState state;
-        uint8 winningOutcome;      // 0=NO, 1=YES (only valid when RESOLVED)
+        uint8 winningOutcome; // 0=NO, 1=YES (only valid when RESOLVED)
         bool outcomeSet;
     }
 
@@ -63,13 +69,7 @@ contract PredictionMarket is AccessControl, ReentrancyGuard {
     error DisputeWindowActive(uint256 deadline);
     error AlreadyClaimed();
 
-    constructor(
-        address collateral_,
-        address shareToken_,
-        address amm_,
-        address oracle_,
-        address admin
-    ) {
+    constructor(address collateral_, address shareToken_, address amm_, address oracle_, address admin) {
         collateral = IERC20(collateral_);
         shareToken = OutcomeShareToken(shareToken_);
         amm = MarketAMM(amm_);
@@ -139,15 +139,9 @@ contract PredictionMarket is AccessControl, ReentrancyGuard {
     }
 
     /// @notice Override resolution during dispute window (DAO governance via Timelock)
-    function overrideResolution(uint256 marketId, uint8 forcedOutcome)
-        external
-        onlyRole(DISPUTE_RESOLVER_ROLE)
-    {
+    function overrideResolution(uint256 marketId, uint8 forcedOutcome) external onlyRole(DISPUTE_RESOLVER_ROLE) {
         Market storage market = markets[marketId];
-        require(
-            market.state == MarketState.DISPUTE,
-            "PredictionMarket: not in dispute"
-        );
+        require(market.state == MarketState.DISPUTE, "PredictionMarket: not in dispute");
         require(forcedOutcome <= 1, "PredictionMarket: invalid outcome");
 
         market.winningOutcome = forcedOutcome;

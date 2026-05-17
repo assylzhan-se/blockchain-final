@@ -81,9 +81,7 @@ contract FeeVault is ERC4626, AccessControl, ReentrancyGuard {
 
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view override returns (uint256) {
         uint256 supply = totalSupply();
-        return (assets == 0 || supply == 0)
-            ? assets
-            : assets.mulDiv(supply, totalAssets(), rounding);
+        return (assets == 0 || supply == 0) ? assets : assets.mulDiv(supply, totalAssets(), rounding);
     }
 
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view override returns (uint256) {

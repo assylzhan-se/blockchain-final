@@ -18,13 +18,9 @@ contract MarketFactory is Ownable {
 
     event MarketDeployed(address indexed market, uint256 indexed index, bool deterministic);
 
-    constructor(
-        address collateral_,
-        address shareToken_,
-        address amm_,
-        address oracle_,
-        address owner_
-    ) Ownable(owner_) {
+    constructor(address collateral_, address shareToken_, address amm_, address oracle_, address owner_)
+        Ownable(owner_)
+    {
         collateral = collateral_;
         shareToken = shareToken_;
         amm = amm_;
@@ -34,13 +30,7 @@ contract MarketFactory is Ownable {
     /// @notice Deploy a new PredictionMarket using standard CREATE
     function deployMarket() external onlyOwner returns (address market) {
         // CREATE — address depends on nonce, not deterministic
-        market = address(new PredictionMarket(
-            collateral,
-            shareToken,
-            amm,
-            oracle,
-            owner()
-        ));
+        market = address(new PredictionMarket(collateral, shareToken, amm, oracle, owner()));
 
         deployedMarkets.push(market);
         emit MarketDeployed(market, deployedMarkets.length - 1, false);
@@ -52,13 +42,7 @@ contract MarketFactory is Ownable {
         require(saltToMarket[salt] == address(0), "MarketFactory: salt already used");
 
         // CREATE2 — address = keccak256(0xff ++ deployer ++ salt ++ keccak256(initcode))
-        market = address(new PredictionMarket{salt: salt}(
-            collateral,
-            shareToken,
-            amm,
-            oracle,
-            owner()
-        ));
+        market = address(new PredictionMarket{ salt: salt }(collateral, shareToken, amm, oracle, owner()));
 
         saltToMarket[salt] = market;
         deployedMarkets.push(market);
@@ -68,15 +52,9 @@ contract MarketFactory is Ownable {
     /// @notice Pre-compute the CREATE2 address for a given salt
     function computeAddress(bytes32 salt) external view returns (address predicted) {
         bytes memory bytecode = abi.encodePacked(
-            type(PredictionMarket).creationCode,
-            abi.encode(collateral, shareToken, amm, oracle, owner())
+            type(PredictionMarket).creationCode, abi.encode(collateral, shareToken, amm, oracle, owner())
         );
-        bytes32 hash = keccak256(abi.encodePacked(
-            bytes1(0xff),
-            address(this),
-            salt,
-            keccak256(bytecode)
-        ));
+        bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, keccak256(bytecode)));
         predicted = address(uint160(uint256(hash)));
     }
 

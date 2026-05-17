@@ -35,8 +35,8 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
     FeeVault public immutable feeVault;
 
     struct Pool {
-        uint256 reserveYes;  // reserve of YES outcome shares
-        uint256 reserveNo;   // reserve of NO outcome shares
+        uint256 reserveYes; // reserve of YES outcome shares
+        uint256 reserveNo; // reserve of NO outcome shares
         uint256 totalLiquidity;
         bool initialized;
     }
@@ -45,8 +45,12 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
     mapping(uint256 => mapping(address => uint256)) public liquidityOf; // marketId => lp => shares
 
     event PoolInitialized(uint256 indexed marketId, uint256 reserveYes, uint256 reserveNo);
-    event SharesBought(uint256 indexed marketId, address indexed buyer, uint8 outcome, uint256 amountIn, uint256 amountOut);
-    event SharesSold(uint256 indexed marketId, address indexed seller, uint8 outcome, uint256 amountIn, uint256 amountOut);
+    event SharesBought(
+        uint256 indexed marketId, address indexed buyer, uint8 outcome, uint256 amountIn, uint256 amountOut
+    );
+    event SharesSold(
+        uint256 indexed marketId, address indexed seller, uint8 outcome, uint256 amountIn, uint256 amountOut
+    );
     event LiquidityAdded(uint256 indexed marketId, address indexed provider, uint256 liquidity);
     event LiquidityRemoved(uint256 indexed marketId, address indexed provider, uint256 liquidity);
     event FeeCollected(uint256 indexed marketId, uint256 feeAmount);
@@ -83,12 +87,8 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         uint256 half = initialLiquidity / 2;
 
         // Effects
-        pools[marketId] = Pool({
-            reserveYes: half,
-            reserveNo: half,
-            totalLiquidity: initialLiquidity,
-            initialized: true
-        });
+        pools[marketId] =
+            Pool({ reserveYes: half, reserveNo: half, totalLiquidity: initialLiquidity, initialized: true });
 
         // Interactions
         collateral.safeTransferFrom(msg.sender, address(this), initialLiquidity);
@@ -120,9 +120,8 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         uint256 fee = (amountIn * FEE_NUMERATOR) / FEE_DENOMINATOR;
         uint256 amountInAfterFee = amountIn - fee;
 
-        (uint256 reserveIn, uint256 reserveOut) = outcome == 1
-            ? (pool.reserveNo, pool.reserveYes)
-            : (pool.reserveYes, pool.reserveNo);
+        (uint256 reserveIn, uint256 reserveOut) =
+            outcome == 1 ? (pool.reserveNo, pool.reserveYes) : (pool.reserveYes, pool.reserveNo);
 
         // Use Yul-optimised getAmountOut
         amountOut = _getAmountOutAssembly(amountInAfterFee, reserveIn, reserveOut);
@@ -164,9 +163,8 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         uint256 fee = (sharesIn * FEE_NUMERATOR) / FEE_DENOMINATOR;
         uint256 sharesAfterFee = sharesIn - fee;
 
-        (uint256 reserveIn, uint256 reserveOut) = outcome == 1
-            ? (pool.reserveYes, pool.reserveNo)
-            : (pool.reserveNo, pool.reserveYes);
+        (uint256 reserveIn, uint256 reserveOut) =
+            outcome == 1 ? (pool.reserveYes, pool.reserveNo) : (pool.reserveNo, pool.reserveYes);
 
         collateralOut = _getAmountOutAssembly(sharesAfterFee, reserveIn, reserveOut);
 
@@ -227,17 +225,17 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
 
         // Proportional share of reserves
         uint256 shareYes = (pool.reserveYes * liquidity) / pool.totalLiquidity;
-        uint256 shareNo  = (pool.reserveNo  * liquidity) / pool.totalLiquidity;
+        uint256 shareNo = (pool.reserveNo * liquidity) / pool.totalLiquidity;
         collateralAmount = shareYes + shareNo;
 
         // Checks on k invariant: after removal k should remain for remaining LPs
         uint256 newReserveYes = pool.reserveYes - shareYes;
-        uint256 newReserveNo  = pool.reserveNo  - shareNo;
+        uint256 newReserveNo = pool.reserveNo - shareNo;
         // k_before / total^2 == k_after / (total - liquidity)^2 approximately
         require(newReserveYes * newReserveNo >= MINIMUM_LIQUIDITY ** 2, "MarketAMM: insufficient remaining liquidity");
 
         pool.reserveYes = newReserveYes;
-        pool.reserveNo  = newReserveNo;
+        pool.reserveNo = newReserveNo;
         pool.totalLiquidity -= liquidity;
         liquidityOf[marketId][msg.sender] -= liquidity;
 
@@ -268,9 +266,7 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         require(pool.initialized, "MarketAMM: pool not initialized");
         uint256 total = pool.reserveYes + pool.reserveNo;
         require(total > 0, "MarketAMM: zero reserves");
-        price = outcome == 1
-            ? (pool.reserveNo * 1e18) / total
-            : (pool.reserveYes * 1e18) / total;
+        price = outcome == 1 ? (pool.reserveNo * 1e18) / total : (pool.reserveYes * 1e18) / total;
     }
 
     /// @notice Pure-Solidity equivalent for gas benchmark comparison
@@ -295,12 +291,7 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         _unpause();
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(AccessControl, ERC1155Holder)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view override(AccessControl, ERC1155Holder) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
