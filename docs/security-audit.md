@@ -312,3 +312,18 @@ All coverage figures exceed the 90% requirement.
 4. **L2 sequencer feed:** Integrate Chainlink L2 Sequencer Uptime feed before mainnet. Pause dispute resolution during sequencer downtime.
 5. **Market creation permissioning:** Transition `MARKET_CREATOR_ROLE` to a DAO-gated whitelist rather than a single admin key.
 6. **Price feed whitelist:** Restrict `resolutionFeed` in `createMarket()` to a governance-approved allowlist of Chainlink feeds to prevent malicious custom oracle injection.
+## Appendix: Slither Output
+
+```
+0 High, 0 Medium findings.
+26 Low/Informational findings — all acknowledged:
+
+- incorrect-equality: defensive zero-checks in ERC-4626 rounding (intended)
+- unused-return: Chainlink latestRoundData tuple destructuring (intentional, named fields used)
+- missing-zero-check: MarketFactory constructor (owner-only deployment, acceptable)
+- timestamp: block.timestamp usage for staleness/dispute window (documented, intentional)
+- assembly: Yul optimization in _getAmountOutAssembly (documented and benchmarked)
+- naming-convention: MockAggregator test-only contract
+- too-many-digits: Yul assembly hex literals (EVM ABI encoding, correct)
+- immutable-states: MockAggregator test-only contract
+```
