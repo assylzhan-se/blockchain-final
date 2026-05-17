@@ -12,20 +12,20 @@ contract GovernorTest is BaseTest {
     struct Proposal {
         address[] targets;
         uint256[] values;
-        bytes[]   calldatas;
-        bytes32   descHash;
-        uint256   id;
+        bytes[] calldatas;
+        bytes32 descHash;
+        uint256 id;
     }
 
     /// @dev Build a minimal governance proposal that mints governance tokens.
     function _buildMintProposal() internal view returns (Proposal memory p) {
-        p.targets   = new address[](1);
-        p.values    = new uint256[](1);
+        p.targets = new address[](1);
+        p.values = new uint256[](1);
         p.calldatas = new bytes[](1);
 
-        p.targets[0]   = address(govToken);
+        p.targets[0] = address(govToken);
         p.calldatas[0] = abi.encodeCall(GovernanceToken.mint, (carol, 1000e18));
-        p.descHash     = keccak256(bytes("Mint 1000 PMG to carol"));
+        p.descHash = keccak256(bytes("Mint 1000 PMG to carol"));
     }
 
     /// @dev Advance blocks and time to end the voting delay.
@@ -275,6 +275,13 @@ contract GovernorTest is BaseTest {
 
 interface IGovernorState {
     enum ProposalState {
-        Pending, Active, Canceled, Defeated, Succeeded, Queued, Expired, Executed
+        Pending,
+        Active,
+        Canceled,
+        Defeated,
+        Succeeded,
+        Queued,
+        Expired,
+        Executed
     }
 }

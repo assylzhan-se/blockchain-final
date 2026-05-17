@@ -9,8 +9,8 @@ contract OutcomeShareTokenTest is BaseTest {
     // ─── tokenId encoding ────────────────────────────────────────────────────
 
     function test_tokenId_encodesCorrectly() public view {
-        assertEq(shareToken.tokenId(1, 0), 2);   // 1*2+0
-        assertEq(shareToken.tokenId(1, 1), 3);   // 1*2+1
+        assertEq(shareToken.tokenId(1, 0), 2); // 1*2+0
+        assertEq(shareToken.tokenId(1, 1), 3); // 1*2+1
         assertEq(shareToken.tokenId(5, 0), 10);
         assertEq(shareToken.tokenId(5, 1), 11);
         assertEq(shareToken.tokenId(0, 0), 0);

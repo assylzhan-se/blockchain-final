@@ -9,12 +9,12 @@ import "./BaseTest.sol";
 /// @notice Wraps protocol actions so Foundry's invariant fuzzer can call them
 ///         in arbitrary order. Ghost variables track per-call invariant checks.
 contract ProtocolHandler is Test {
-    MarketAMM         internal amm;
-    FeeVault          internal vault;
-    GovernanceToken   internal govToken;
-    ERC20Mock         internal collateral;
+    MarketAMM internal amm;
+    FeeVault internal vault;
+    GovernanceToken internal govToken;
+    ERC20Mock internal collateral;
     OutcomeShareToken internal shareToken;
-    uint256           internal marketId;
+    uint256 internal marketId;
 
     address internal alice;
     address internal bob;
@@ -24,32 +24,32 @@ contract ProtocolHandler is Test {
     bool public ghost_kInvariantViolated;
 
     constructor(
-        MarketAMM         _amm,
-        FeeVault          _vault,
-        GovernanceToken   _govToken,
-        ERC20Mock         _coll,
+        MarketAMM _amm,
+        FeeVault _vault,
+        GovernanceToken _govToken,
+        ERC20Mock _coll,
         OutcomeShareToken _shareToken,
-        uint256           _marketId,
-        address           _alice,
-        address           _bob,
-        address           _admin
+        uint256 _marketId,
+        address _alice,
+        address _bob,
+        address _admin
     ) {
-        amm        = _amm;
-        vault      = _vault;
-        govToken   = _govToken;
+        amm = _amm;
+        vault = _vault;
+        govToken = _govToken;
         collateral = _coll;
         shareToken = _shareToken;
-        marketId   = _marketId;
-        alice      = _alice;
-        bob        = _bob;
-        admin      = _admin;
+        marketId = _marketId;
+        alice = _alice;
+        bob = _bob;
+        admin = _admin;
     }
 
     // ── AMM actions ───────────────────────────────────────────────────────────
 
     function buy(uint256 amountIn, uint8 outcome) external {
         amountIn = bound(amountIn, 1e6, 1_000e18);
-        outcome  = uint8(bound(outcome, 0, 1));
+        outcome = uint8(bound(outcome, 0, 1));
 
         (uint256 rYes0, uint256 rNo0,,) = amm.pools(marketId);
         uint256 kBefore = rYes0 * rNo0;
@@ -62,7 +62,7 @@ contract ProtocolHandler is Test {
             if (rYes1 * rNo1 < kBefore) {
                 ghost_kInvariantViolated = true;
             }
-        } catch {}
+        } catch { }
         vm.stopPrank();
     }
 
@@ -74,7 +74,7 @@ contract ProtocolHandler is Test {
         sharesIn = bound(sharesIn, 1, bal);
 
         vm.startPrank(alice);
-        try amm.sell(marketId, outcome, sharesIn, 0) {} catch {}
+        try amm.sell(marketId, outcome, sharesIn, 0) { } catch { }
         vm.stopPrank();
     }
 
@@ -83,7 +83,7 @@ contract ProtocolHandler is Test {
         deal(address(collateral), bob, amount);
         vm.startPrank(bob);
         collateral.approve(address(amm), amount);
-        try amm.addLiquidity(marketId, amount) {} catch {}
+        try amm.addLiquidity(marketId, amount) { } catch { }
         vm.stopPrank();
     }
 
@@ -94,7 +94,7 @@ contract ProtocolHandler is Test {
         deal(address(collateral), alice, assets);
         vm.startPrank(alice);
         collateral.approve(address(vault), assets);
-        try vault.deposit(assets, alice) {} catch {}
+        try vault.deposit(assets, alice) { } catch { }
         vm.stopPrank();
     }
 
@@ -103,7 +103,7 @@ contract ProtocolHandler is Test {
         deal(address(collateral), admin, amount);
         vm.startPrank(admin);
         collateral.approve(address(vault), amount);
-        try vault.depositFee(amount) {} catch {}
+        try vault.depositFee(amount) { } catch { }
         vm.stopPrank();
     }
 
@@ -127,10 +127,7 @@ contract InvariantTest is BaseTest {
         super.setUp();
         uint256 mktId = _createActiveMarket();
 
-        handler = new ProtocolHandler(
-            amm, vault, govToken, collateral, shareToken,
-            mktId, alice, bob, admin
-        );
+        handler = new ProtocolHandler(amm, vault, govToken, collateral, shareToken, mktId, alice, bob, admin);
 
         // Grant FEE_DEPOSITOR to handler so depositFee action works
         vm.startPrank(admin);
@@ -152,11 +149,7 @@ contract InvariantTest is BaseTest {
 
     /// @notice Governance token total supply must never exceed maxSupply.
     function invariant_totalSupplyBoundedByMaxSupply() public view {
-        assertLe(
-            govToken.totalSupply(),
-            govToken.maxSupply(),
-            "totalSupply exceeded maxSupply"
-        );
+        assertLe(govToken.totalSupply(), govToken.maxSupply(), "totalSupply exceeded maxSupply");
     }
 
     // ─── 3. Vault solvency ────────────────────────────────────────────────────
@@ -181,7 +174,7 @@ contract InvariantTest is BaseTest {
         (uint256 rYes, uint256 rNo, uint256 totalLiq, bool init) = amm.pools(1);
         if (init && totalLiq > 0) {
             assertLe(rYes, totalLiq, "reserveYes exceeds totalLiquidity");
-            assertLe(rNo,  totalLiq, "reserveNo  exceeds totalLiquidity");
+            assertLe(rNo, totalLiq, "reserveNo  exceeds totalLiquidity");
         }
     }
 }

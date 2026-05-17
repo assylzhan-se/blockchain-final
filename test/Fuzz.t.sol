@@ -74,19 +74,18 @@ contract FuzzTest is BaseTest {
     }
 
     /// @notice Yul assembly getAmountOut matches the pure-Solidity equivalent.
-    function testFuzz_getAmountOut_yulMatchesSolidity(
-        uint256 amountIn,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) public view {
-        amountIn   = bound(amountIn,   1, 1e27);
-        reserveIn  = bound(reserveIn,  1, 1e27);
+    function testFuzz_getAmountOut_yulMatchesSolidity(uint256 amountIn, uint256 reserveIn, uint256 reserveOut)
+        public
+        view
+    {
+        amountIn = bound(amountIn, 1, 1e27);
+        reserveIn = bound(reserveIn, 1, 1e27);
         reserveOut = bound(reserveOut, 1, 1e27);
         // Avoid overflow in numerator
         vm.assume(amountIn <= type(uint256).max / reserveOut);
 
         uint256 solidityOut = amm.getAmountOutSolidity(amountIn, reserveIn, reserveOut);
-        uint256 expected    = (amountIn * reserveOut) / (reserveIn + amountIn);
+        uint256 expected = (amountIn * reserveOut) / (reserveIn + amountIn);
         assertEq(solidityOut, expected);
     }
 
@@ -141,7 +140,7 @@ contract FuzzTest is BaseTest {
     /// @notice Depositing a fee always increases the convertToAssets value for existing shares.
     function testFuzz_vault_feeDeposit_increasesShareValue(uint256 assets, uint256 fee) public {
         assets = bound(assets, 1e10, 100_000e18);
-        fee    = bound(fee,    1,    10_000e18);
+        fee = bound(fee, 1, 10_000e18);
 
         vm.startPrank(alice);
         collateral.approve(address(vault), assets);
@@ -193,7 +192,7 @@ contract FuzzTest is BaseTest {
     /// @notice tokenId must be unique across different (marketId, outcome) pairs.
     function testFuzz_tokenId_uniqueEncoding(uint256 mId, uint8 outcome) public view {
         outcome = uint8(bound(outcome, 0, 1));
-        mId     = bound(mId, 0, type(uint128).max);
+        mId = bound(mId, 0, type(uint128).max);
 
         uint256 tid = shareToken.tokenId(mId, outcome);
         assertEq(tid, mId * 2 + outcome);

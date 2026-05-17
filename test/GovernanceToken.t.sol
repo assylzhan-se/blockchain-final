@@ -73,14 +73,16 @@ contract GovernanceTokenTest is BaseTest {
         uint256 deadline = block.timestamp + 1 days;
 
         bytes32 domainSeparator = govToken.DOMAIN_SEPARATOR();
-        bytes32 structHash = keccak256(abi.encode(
-            keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
-            signer,
-            bob,
-            500e18,
-            nonce,
-            deadline
-        ));
+        bytes32 structHash = keccak256(
+            abi.encode(
+                keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                signer,
+                bob,
+                500e18,
+                nonce,
+                deadline
+            )
+        );
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
@@ -120,7 +122,7 @@ contract GovernanceTokenTest is BaseTest {
 
     function test_upgrade_storageLayoutPreserved() public {
         uint256 balanceBefore = govToken.balanceOf(alice);
-        uint256 supplyBefore  = govToken.totalSupply();
+        uint256 supplyBefore = govToken.totalSupply();
 
         GovernanceTokenV2 v2Impl = new GovernanceTokenV2();
         vm.prank(admin);

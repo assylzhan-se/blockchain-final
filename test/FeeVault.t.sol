@@ -109,7 +109,7 @@ contract FeeVaultTest is BaseTest {
 
         uint256 wantOut = 5_000e18;
         uint256 previewShares = vault.previewWithdraw(wantOut);
-        uint256 actualShares  = vault.withdraw(wantOut, alice, alice);
+        uint256 actualShares = vault.withdraw(wantOut, alice, alice);
         assertEq(previewShares, actualShares);
         vm.stopPrank();
     }

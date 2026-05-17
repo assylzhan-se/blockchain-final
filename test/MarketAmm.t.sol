@@ -195,7 +195,7 @@ contract MarketAMMTest is BaseTest {
 
     function test_getPrice_initiallyFiftyFifty() public view {
         uint256 yesPrice = amm.getPrice(marketId, 1);
-        uint256 noPrice  = amm.getPrice(marketId, 0);
+        uint256 noPrice = amm.getPrice(marketId, 0);
         assertApproxEqAbs(yesPrice + noPrice, 1e18, 1);
     }
 
@@ -309,10 +309,7 @@ contract ReentrancyAttacker {
         target.buy(mId, 1, 1000e18, 1);
     }
 
-    function onERC1155Received(address, address, uint256, uint256, bytes calldata)
-        external
-        returns (bytes4)
-    {
+    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external returns (bytes4) {
         if (attacking) {
             attacking = false;
             // Attempt reentrant sell — should revert

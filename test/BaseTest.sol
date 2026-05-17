@@ -18,30 +18,30 @@ import "../src/PMGovernor.sol";
 /// @dev Shared test base — deploys the full protocol stack
 abstract contract BaseTest is Test {
     // Actors
-    address internal admin    = makeAddr("admin");
-    address internal alice    = makeAddr("alice");
-    address internal bob      = makeAddr("bob");
-    address internal carol    = makeAddr("carol");
+    address internal admin = makeAddr("admin");
+    address internal alice = makeAddr("alice");
+    address internal bob = makeAddr("bob");
+    address internal carol = makeAddr("carol");
     address internal attacker = makeAddr("attacker");
 
     // Protocol contracts
-    GovernanceToken   internal govToken;
+    GovernanceToken internal govToken;
     OutcomeShareToken internal shareToken;
-    MockAggregator    internal mockFeed;
-    ChainlinkAdapter  internal oracle;
-    FeeVault          internal vault;
-    MarketAMM         internal amm;
-    PredictionMarket  internal market;
-    MarketFactory     internal factory;
+    MockAggregator internal mockFeed;
+    ChainlinkAdapter internal oracle;
+    FeeVault internal vault;
+    MarketAMM internal amm;
+    PredictionMarket internal market;
+    MarketFactory internal factory;
     TimelockController internal timelock;
-    PMGovernor        internal governor;
+    PMGovernor internal governor;
 
     // Mock collateral (use govToken as collateral for simplicity in tests,
     // in production this would be USDC)
     ERC20Mock internal collateral;
 
-    uint256 internal constant INITIAL_SUPPLY   = 1_000_000e18;
-    uint256 internal constant MAX_SUPPLY       = 10_000_000e18;
+    uint256 internal constant INITIAL_SUPPLY = 1_000_000e18;
+    uint256 internal constant MAX_SUPPLY = 10_000_000e18;
     uint256 internal constant INITIAL_LIQUIDITY = 100_000e18;
 
     function setUp() public virtual {
@@ -49,16 +49,14 @@ abstract contract BaseTest is Test {
 
         // 1. Collateral mock
         collateral = new ERC20Mock("USD Coin", "USDC", 6);
-        collateral.mint(admin,  INITIAL_SUPPLY);
-        collateral.mint(alice,  INITIAL_SUPPLY);
-        collateral.mint(bob,    INITIAL_SUPPLY);
-        collateral.mint(carol,  INITIAL_SUPPLY);
+        collateral.mint(admin, INITIAL_SUPPLY);
+        collateral.mint(alice, INITIAL_SUPPLY);
+        collateral.mint(bob, INITIAL_SUPPLY);
+        collateral.mint(carol, INITIAL_SUPPLY);
 
         // 2. Governance token (UUPS proxy)
         GovernanceToken govImpl = new GovernanceToken();
-        bytes memory initData = abi.encodeCall(
-            GovernanceToken.initialize, (admin, INITIAL_SUPPLY, MAX_SUPPLY)
-        );
+        bytes memory initData = abi.encodeCall(GovernanceToken.initialize, (admin, INITIAL_SUPPLY, MAX_SUPPLY));
         ERC1967Proxy proxy = new ERC1967Proxy(address(govImpl), initData);
         govToken = GovernanceToken(address(proxy));
 
@@ -83,14 +81,10 @@ abstract contract BaseTest is Test {
         amm = new MarketAMM(address(collateral), address(shareToken), address(vault), admin);
 
         // 8. PredictionMarket
-        market = new PredictionMarket(
-            address(collateral), address(shareToken), address(amm), address(oracle), admin
-        );
+        market = new PredictionMarket(address(collateral), address(shareToken), address(amm), address(oracle), admin);
 
         // 9. Factory
-        factory = new MarketFactory(
-            address(collateral), address(shareToken), address(amm), address(oracle), admin
-        );
+        factory = new MarketFactory(address(collateral), address(shareToken), address(amm), address(oracle), admin);
 
         // 10. Governor
         governor = new PMGovernor(IVotes(address(govToken)), timelock);
@@ -127,12 +121,8 @@ abstract contract BaseTest is Test {
     function _createActiveMarket() internal returns (uint256 marketId) {
         vm.startPrank(admin);
         collateral.approve(address(market), INITIAL_LIQUIDITY);
-        marketId = market.createMarket(
-            "Will ETH be above $3000 on Dec 31?",
-            address(mockFeed),
-            3000e8,
-            INITIAL_LIQUIDITY
-        );
+        marketId =
+            market.createMarket("Will ETH be above $3000 on Dec 31?", address(mockFeed), 3000e8, INITIAL_LIQUIDITY);
         market.activateMarket(marketId);
         vm.stopPrank();
     }

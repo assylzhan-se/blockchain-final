@@ -56,11 +56,7 @@ contract Deploy is Script {
         deployed.vault = new FeeVault(IERC20(collateral), admin);
         deployed.amm = new MarketAMM(collateral, address(deployed.shareToken), address(deployed.vault), admin);
         deployed.predictionMarket = new PredictionMarket(
-            collateral,
-            address(deployed.shareToken),
-            address(deployed.amm),
-            address(deployed.oracle),
-            admin
+            collateral, address(deployed.shareToken), address(deployed.amm), address(deployed.oracle), admin
         );
 
         deployed.shareToken.grantRole(deployed.shareToken.MINTER_ROLE(), address(deployed.amm));

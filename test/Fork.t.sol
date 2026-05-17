@@ -10,7 +10,7 @@ contract ForkTest is Test {
     // Ethereum mainnet Chainlink ETH/USD price feed
     address constant ETH_USD_FEED = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
     // Ethereum mainnet USDC
-    address constant USDC         = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 
     ChainlinkAdapter oracle;
 
@@ -31,16 +31,16 @@ contract ForkTest is Test {
         int256 price = oracle.validateFresh(ETH_USD_FEED);
         assertGt(price, 0, "ETH/USD price must be positive");
         // Sanity: ETH between $10 and $1 000 000
-        assertGt(price, 10e8,       "ETH price suspiciously low");
-        assertLt(price, 1_000_000e8,"ETH price suspiciously high");
+        assertGt(price, 10e8, "ETH price suspiciously low");
+        assertLt(price, 1_000_000e8, "ETH price suspiciously high");
     }
 
     // ─── Fork test 2: getLatestPrice matches validateFresh ───────────────────
 
     /// @notice getLatestPrice and validateFresh must agree on the same feed.
     function test_fork_getLatestPrice_matchesValidateFresh() public {
-        int256 validated        = oracle.validateFresh(ETH_USD_FEED);
-        (int256 latest,)        = oracle.getLatestPrice(ETH_USD_FEED);
+        int256 validated = oracle.validateFresh(ETH_USD_FEED);
+        (int256 latest,) = oracle.getLatestPrice(ETH_USD_FEED);
         assertEq(validated, latest, "getLatestPrice and validateFresh must agree");
     }
 
