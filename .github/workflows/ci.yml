@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build-and-test:
+    name: Compile · Test · Coverage · Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # ── Foundry toolchain ────────────────────────────────────────────────────
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      # ── Compile ──────────────────────────────────────────────────────────────
+      - name: Compile contracts
+        run: forge build --sizes
+
+      # ── Format check ─────────────────────────────────────────────────────────
+      - name: Check formatting (forge fmt)
+        run: forge fmt --check
+
+      # ── Full test suite ───────────────────────────────────────────────────────
+      - name: Run tests
+        run: forge test -v
+        env:
+          ETH_RPC_URL: ${{ secrets.ETH_RPC_URL }}
+
+      # ── Coverage ─────────────────────────────────────────────────────────────
+      - name: Generate coverage report
+        run: |
+          forge coverage --no-match-test "invariant_" --report lcov
+          forge coverage --no-match-test "invariant_" --report summary >> coverage-summary.txt
+          cat coverage-summary.txt
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            lcov.info
+            coverage-summary.txt
+
+      # ── Slither ──────────────────────────────────────────────────────────────
+      - name: Run Slither
+        uses: crytic/slither-action@v0.4.0
+        continue-on-error: true          # report findings but do not block CI for Low/Info
+        with:
+          node-version: "20"
+          slither-args: "--exclude-dependencies --filter-paths lib/"
+
+  solhint:
+    name: Solhint lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install solhint
+        run: npm install -g solhint
+      - name: Lint Solidity
+        run: solhint 'src/**/*.sol'
