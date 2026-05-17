@@ -1,0 +1,80 @@
+'forge clean' running (wd: C:\Users\Admin\Desktop\Final blockchain)
+'forge config --json' running
+'forge build --build-info --skip ./test/** ./script/** --force' running (wd: C:\Users\Admin\Desktop\Final blockchain)
+INFO:Detectors:
+Detector: incorrect-equality
+FeeVault._convertToAssets(uint256,Math.Rounding) (src/FeeVault.sol#87-90) uses a dangerous strict equality:
+	- (supply == 0) (src/FeeVault.sol#89)
+FeeVault._convertToShares(uint256,Math.Rounding) (src/FeeVault.sol#82-85) uses a dangerous strict equality:
+	- (assets == 0 || supply == 0) (src/FeeVault.sol#84)
+FeeVault.deposit(uint256,address) (src/FeeVault.sol#46-50) uses a dangerous strict equality:
+	- shares == 0 (src/FeeVault.sol#49)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities
+INFO:Detectors:
+Detector: unused-return
+ChainlinkAdapter.getLatestPrice(address) (src/ChainlinkAdapter.sol#36-40) ignores return value by (None,price,None,latestUpdatedAt,None) = AggregatorV3Interface(feed).latestRoundData() (src/ChainlinkAdapter.sol#38)
+ChainlinkAdapter.validateFresh(address) (src/ChainlinkAdapter.sol#43-57) ignores return value by (roundId,_price,None,updatedAt,answeredInRound) = AggregatorV3Interface(feed).latestRoundData() (src/ChainlinkAdapter.sol#44-45)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return
+INFO:Detectors:
+Detector: missing-zero-check
+MarketFactory.constructor(address,address,address,address,address).collateral_ (src/MarketFactory.sol#21) lacks a zero-check on :
+		- collateral = collateral_ (src/MarketFactory.sol#24)
+MarketFactory.constructor(address,address,address,address,address).shareToken_ (src/MarketFactory.sol#21) lacks a zero-check on :
+		- shareToken = shareToken_ (src/MarketFactory.sol#25)
+MarketFactory.constructor(address,address,address,address,address).amm_ (src/MarketFactory.sol#21) lacks a zero-check on :
+		- amm = amm_ (src/MarketFactory.sol#26)
+MarketFactory.constructor(address,address,address,address,address).oracle_ (src/MarketFactory.sol#21) lacks a zero-check on :
+		- oracle = oracle_ (src/MarketFactory.sol#27)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#missing-zero-address-validation
+INFO:Detectors:
+Detector: timestamp
+ChainlinkAdapter.validateFresh(address) (src/ChainlinkAdapter.sol#43-57) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp - updatedAt > maxStale (src/ChainlinkAdapter.sol#52)
+PredictionMarket.overrideResolution(uint256,uint8) (src/PredictionMarket.sol#142-149) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(market.state == MarketState.DISPUTE,PredictionMarket: not in dispute) (src/PredictionMarket.sol#144)
+PredictionMarket.finalizeResolution(uint256) (src/PredictionMarket.sol#152-162) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp < deadline (src/PredictionMarket.sol#158)
+PredictionMarket.claimWinnings(uint256) (src/PredictionMarket.sol#165-186) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(market.state == MarketState.RESOLVED || market.state == MarketState.CLOSED,PredictionMarket: market not resolved) (src/PredictionMarket.sol#167-170)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+Detector: assembly
+GovernanceToken._getStorage() (src/GovernanceToken.sol#32-36) uses assembly
+	- INLINE ASM (src/GovernanceToken.sol#33-35)
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses assembly
+	- INLINE ASM (src/MarketAMM.sol#309-339)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage
+INFO:Detectors:
+Detector: naming-convention
+Parameter MockAggregator.getRoundData(uint80)._rid (src/ChainlinkAdapter.sol#102) is not in mixedCase
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions
+INFO:Detectors:
+Detector: too-many-digits
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses literals with too many digits:
+	- mstore(uint256,uint256)(0x00,0x08c379a000000000000000000000000000000000000000000000000000000000) (src/MarketAMM.sol#313)
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses literals with too many digits:
+	- mstore(uint256,uint256)(0x04,0x0000000000000000000000000000000000000000000000000000000000000020) (src/MarketAMM.sol#314)
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses literals with too many digits:
+	- mstore(uint256,uint256)(0x24,0x000000000000000000000000000000000000000000000000000000000000000e) (src/MarketAMM.sol#315)
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses literals with too many digits:
+	- mstore(uint256,uint256)(0x44,0x696e76616c696420696e70757473000000000000000000000000000000000000) (src/MarketAMM.sol#316)
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses literals with too many digits:
+	- mstore(uint256,uint256)(0x00,0x4e487b7100000000000000000000000000000000000000000000000000000000) (src/MarketAMM.sol#324)
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses literals with too many digits:
+	- mstore(uint256,uint256)(0x04,0x0000000000000000000000000000000000000000000000000000000000000011) (src/MarketAMM.sol#325)
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses literals with too many digits:
+	- mstore(uint256,uint256)(0x00,0x4e487b7100000000000000000000000000000000000000000000000000000000) (src/MarketAMM.sol#333)
+MarketAMM._getAmountOutAssembly(uint256,uint256,uint256) (src/MarketAMM.sol#304-340) uses literals with too many digits:
+	- mstore(uint256,uint256)(0x04,0x0000000000000000000000000000000000000000000000000000000000000011) (src/MarketAMM.sol#334)
+MarketFactory.computeAddress(bytes32) (src/MarketFactory.sol#53-59) uses literals with too many digits:
+	- bytecode = abi.encodePacked(type()(PredictionMarket).creationCode,abi.encode(collateral,shareToken,amm,oracle,owner())) (src/MarketFactory.sol#54-56)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits
+INFO:Detectors:
+Detector: immutable-states
+MockAggregator._decimals (src/ChainlinkAdapter.sol#71) should be immutable 
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-immutable
+INFO:Slither:. analyzed (90 contracts with 101 detectors), 26 result(s) found
