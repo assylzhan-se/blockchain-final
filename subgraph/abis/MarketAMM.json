@@ -1,0 +1,50 @@
+[
+  {
+    "type": "event",
+    "name": "SharesBought",
+    "inputs": [
+      { "name": "marketId", "type": "uint256", "indexed": true },
+      { "name": "buyer",    "type": "address", "indexed": true },
+      { "name": "outcome",  "type": "uint8",   "indexed": false },
+      { "name": "amountIn", "type": "uint256", "indexed": false },
+      { "name": "amountOut","type": "uint256", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "SharesSold",
+    "inputs": [
+      { "name": "marketId",  "type": "uint256", "indexed": true },
+      { "name": "seller",    "type": "address", "indexed": true },
+      { "name": "outcome",   "type": "uint8",   "indexed": false },
+      { "name": "amountIn",  "type": "uint256", "indexed": false },
+      { "name": "amountOut", "type": "uint256", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "LiquidityAdded",
+    "inputs": [
+      { "name": "marketId",  "type": "uint256", "indexed": true },
+      { "name": "provider",  "type": "address", "indexed": true },
+      { "name": "liquidity", "type": "uint256", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "LiquidityRemoved",
+    "inputs": [
+      { "name": "marketId",  "type": "uint256", "indexed": true },
+      { "name": "provider",  "type": "address", "indexed": true },
+      { "name": "liquidity", "type": "uint256", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "FeeCollected",
+    "inputs": [
+      { "name": "marketId",  "type": "uint256", "indexed": true },
+      { "name": "feeAmount", "type": "uint256", "indexed": false }
+    ]
+  }
+]

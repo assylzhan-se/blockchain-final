@@ -1,0 +1,16 @@
+{
+  "name": "prediction-market-subgraph",
+  "version": "1.0.0",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build":   "graph build",
+    "deploy":  "graph deploy --studio prediction-market",
+    "create-local": "graph create --node http://localhost:8020/ prediction-market",
+    "remove-local": "graph remove --node http://localhost:8020/ prediction-market",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 prediction-market"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.71.0",
+    "@graphprotocol/graph-ts":  "^0.35.1"
+  }
+}

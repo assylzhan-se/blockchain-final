@@ -1,0 +1,45 @@
+[
+  {
+    "type": "event",
+    "name": "MarketCreated",
+    "inputs": [
+      { "name": "marketId", "type": "uint256", "indexed": true },
+      { "name": "question", "type": "string", "indexed": false },
+      { "name": "feed", "type": "address", "indexed": false },
+      { "name": "threshold", "type": "int256", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "MarketActivated",
+    "inputs": [
+      { "name": "marketId", "type": "uint256", "indexed": true }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "MarketDisputeStarted",
+    "inputs": [
+      { "name": "marketId", "type": "uint256", "indexed": true },
+      { "name": "proposedOutcome", "type": "uint8", "indexed": false },
+      { "name": "disputeDeadline", "type": "uint256", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "MarketResolved",
+    "inputs": [
+      { "name": "marketId", "type": "uint256", "indexed": true },
+      { "name": "winningOutcome", "type": "uint8", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "WinningsClaimed",
+    "inputs": [
+      { "name": "marketId", "type": "uint256", "indexed": true },
+      { "name": "claimer", "type": "address", "indexed": true },
+      { "name": "amount", "type": "uint256", "indexed": false }
+    ]
+  }
+]

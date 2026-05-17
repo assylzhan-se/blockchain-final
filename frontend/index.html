@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prediction Market DAO</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2d3148;
+      --accent: #6c63ff;
+      --accent-hover: #857eff;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .logo { font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+    .network-badge {
+      font-size: 0.75rem;
+      background: #1e2035;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 3px 10px;
+      color: var(--muted);
+    }
+    #connectBtn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    #connectBtn:hover { background: var(--accent-hover); }
+    #walletInfo { font-size: 0.85rem; color: var(--muted); }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .stat-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
+    .stat-label { color: var(--muted); }
+    .stat-val  { font-weight: 600; }
+
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; margin-top: 12px; }
+    input, select {
+      width: 100%;
+      background: #12141f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    button.action {
+      margin-top: 14px;
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button.action:hover { background: var(--accent-hover); }
+    button.action:disabled { background: #3a3d5c; cursor: not-allowed; }
+
+    #marketList { margin-top: 28px; }
+    .market-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+    .market-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .market-q { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+    .badge-CREATED  { background: #1e3a5f; color: #60a5fa; }
+    .badge-ACTIVE   { background: #14532d; color: #4ade80; }
+    .badge-DISPUTE  { background: #451a03; color: #fb923c; }
+    .badge-RESOLVED { background: #1c1917; color: #a8a29e; }
+    .badge-CLOSED   { background: #1c1917; color: #78716c; }
+
+    .market-meta { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+
+    #proposals { margin-top: 28px; }
+    .prop-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+    .prop-desc { font-size: 0.9rem; margin-bottom: 8px; word-break: break-word; }
+    .vote-bar { height: 8px; border-radius: 4px; background: #1e2035; margin-bottom: 6px; overflow: hidden; }
+    .vote-fill { height: 100%; background: var(--success); border-radius: 4px; transition: width 0.4s; }
+    .vote-stats { font-size: 0.78rem; color: var(--muted); }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 0.85rem;
+      max-width: 340px;
+      display: none;
+      z-index: 999;
+    }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+    .toast.success { border-color: var(--success); color: var(--success); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PM DAO</div>
+  <span class="network-badge" id="networkBadge">Not connected</span>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span id="walletInfo"></span>
+    <button id="connectBtn">Connect Wallet</button>
+  </div>
+</header>
+
+<main>
+  <!-- Protocol stats -->
+  <div class="card" style="margin-bottom:24px">
+    <h2>Protocol Stats</h2>
+    <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+      <div><div class="stat-label">Markets</div><div class="stat-val" id="statMarkets">-</div></div>
+      <div><div class="stat-label">Volume</div><div class="stat-val" id="statVolume">-</div></div>
+      <div><div class="stat-label">Fees</div><div class="stat-val" id="statFees">-</div></div>
+      <div><div class="stat-label">Liquidity</div><div class="stat-val" id="statLiquidity">-</div></div>
+    </div>
+  </div>
+
+  <!-- Wallet info + Trade -->
+  <div class="grid">
+    <div class="card">
+      <h2>My Wallet</h2>
+      <div class="stat-row"><span class="stat-label">PMG Balance</span><span class="stat-val" id="pmgBalance">-</span></div>
+      <div class="stat-row"><span class="stat-label">Voting Power</span><span class="stat-val" id="votingPower">-</span></div>
+      <div class="stat-row"><span class="stat-label">USDC Balance</span><span class="stat-val" id="usdcBalance">-</span></div>
+
+      <button class="action" id="delegateBtn">Delegate Votes to Self</button>
+    </div>
+
+    <div class="card">
+      <h2>Trade Outcome Shares</h2>
+      <label>Market ID</label>
+      <input type="number" id="tradeMarketId" placeholder="0" min="0" />
+      <label>Outcome</label>
+      <select id="tradeOutcome">
+        <option value="1">YES</option>
+        <option value="0">NO</option>
+      </select>
+      <label>Amount In (USDC, 18 dec)</label>
+      <input type="text" id="tradeAmount" placeholder="10000000000000000000" />
+      <label>Min Amount Out</label>
+      <input type="text" id="tradeMinOut" placeholder="0" />
+      <div style="display:flex;gap:8px">
+        <button class="action" id="buyBtn">Buy</button>
+        <button class="action" id="sellBtn" style="background:#2d3148;color:var(--text)">Sell</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Liquidity -->
+  <div class="grid" style="margin-top:20px">
+    <div class="card">
+      <h2>Liquidity</h2>
+      <label>Market ID</label>
+      <input type="number" id="liqMarketId" placeholder="0" min="0" />
+      <label>Amount (USDC)</label>
+      <input type="text" id="liqAmount" placeholder="100000000000000000000" />
+      <div style="display:flex;gap:8px">
+        <button class="action" id="addLiqBtn">Add Liquidity</button>
+        <button class="action" id="removeLiqBtn" style="background:#2d3148;color:var(--text)">Remove</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Pool Reserves</h2>
+      <label>Market ID to Inspect</label>
+      <input type="number" id="poolMarketId" placeholder="0" min="0" />
+      <button class="action" id="poolQueryBtn">Query Pool</button>
+      <div style="margin-top:12px">
+        <div class="stat-row"><span class="stat-label">Reserve YES</span><span class="stat-val" id="resYes">-</span></div>
+        <div class="stat-row"><span class="stat-label">Reserve NO</span><span class="stat-val" id="resNo">-</span></div>
+        <div class="stat-row"><span class="stat-label">Total Liquidity</span><span class="stat-val" id="resTotal">-</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Markets from The Graph -->
+  <div id="marketList">
+    <h2 style="margin-top:28px">Active Markets <span style="color:var(--muted);font-size:0.8rem">(via The Graph)</span></h2>
+    <div id="marketsContainer"><p style="color:var(--muted);font-size:0.85rem">Loading markets…</p></div>
+  </div>
+
+  <!-- Governance proposals from The Graph -->
+  <div id="proposals">
+    <h2 style="margin-top:28px">Governance Proposals</h2>
+    <div id="proposalsContainer"><p style="color:var(--muted);font-size:0.85rem">Loading proposals…</p></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Config ──────────────────────────────────────────────────────────────────
+const ARBITRUM_SEPOLIA_ID = 421614;
+const GRAPH_URL = "https://api.studio.thegraph.com/query/YOUR_ID/prediction-market/v0.0.1";
+
+// Replace with deployed addresses after L2 deployment
+const ADDRESSES = {
+  collateral:    "0x0000000000000000000000000000000000000000", // USDC on Arbitrum Sepolia
+  govToken:      "0x0000000000000000000000000000000000000000",
+  amm:           "0x0000000000000000000000000000000000000000",
+  predMarket:    "0x0000000000000000000000000000000000000000",
+};
+
+// Minimal ABIs
+const ERC20_ABI = [
+  "function balanceOf(address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)",
+  "function decimals() view returns (uint8)",
+];
+const GOV_TOKEN_ABI = [
+  ...ERC20_ABI,
+  "function getVotes(address) view returns (uint256)",
+  "function delegate(address) returns ()",
+];
+const AMM_ABI = [
+  "function pools(uint256) view returns (uint256 reserveYes, uint256 reserveNo, uint256 totalLiquidity, bool initialized)",
+  "function buyShares(uint256 marketId, uint8 outcome, uint256 amountIn, uint256 minAmountOut) returns (uint256)",
+  "function sellShares(uint256 marketId, uint8 outcome, uint256 sharesIn, uint256 minAmountOut) returns (uint256)",
+  "function addLiquidity(uint256 marketId, uint256 collateralAmount) returns (uint256)",
+  "function removeLiquidity(uint256 marketId, uint256 liquidityShares) returns (uint256)",
+];
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let provider, signer, account;
+
+// ─── Toast ───────────────────────────────────────────────────────────────────
+function toast(msg, type = "success") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "toast " + type;
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 4000);
+}
+
+// ─── ethers v5 CDN shim ──────────────────────────────────────────────────────
+// We load ethers dynamically to keep this file self-contained.
+async function loadEthers() {
+  if (window.ethers) return;
+  await new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js";
+    s.onload = res;
+    s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+// ─── Connect Wallet ──────────────────────────────────────────────────────────
+document.getElementById("connectBtn").onclick = async () => {
+  try {
+    await loadEthers();
+    if (!window.ethereum) { toast("MetaMask not found", "error"); return; }
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    account = await signer.getAddress();
+
+    const network = await provider.getNetwork();
+    if (network.chainId !== ARBITRUM_SEPOLIA_ID) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x" + ARBITRUM_SEPOLIA_ID.toString(16) }],
+        });
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+      } catch (e) {
+        toast("Please switch to Arbitrum Sepolia", "error");
+        return;
+      }
+    }
+
+    document.getElementById("walletInfo").textContent =
+      account.slice(0, 6) + "…" + account.slice(-4);
+    document.getElementById("connectBtn").textContent = "Connected";
+    document.getElementById("networkBadge").textContent = "Arbitrum Sepolia";
+
+    await refreshWallet();
+  } catch (e) {
+    toast(e.message || "Connection failed", "error");
+  }
+};
+
+// ─── Wallet Data ──────────────────────────────────────────────────────────────
+async function refreshWallet() {
+  if (!signer) return;
+  try {
+    const gt = new ethers.Contract(ADDRESSES.govToken, GOV_TOKEN_ABI, signer);
+    const cl = new ethers.Contract(ADDRESSES.collateral, ERC20_ABI, signer);
+
+    const [pmg, vp, usdc] = await Promise.all([
+      gt.balanceOf(account),
+      gt.getVotes(account),
+      cl.balanceOf(account),
+    ]);
+
+    const fmt = (v) => parseFloat(ethers.utils.formatEther(v)).toFixed(2);
+    document.getElementById("pmgBalance").textContent = fmt(pmg) + " PMG";
+    document.getElementById("votingPower").textContent = fmt(vp) + " PMG";
+    document.getElementById("usdcBalance").textContent = fmt(usdc) + " USDC";
+  } catch (e) {
+    console.error("refreshWallet", e);
+  }
+}
+
+// ─── Delegate ─────────────────────────────────────────────────────────────────
+document.getElementById("delegateBtn").onclick = async () => {
+  if (!signer) { toast("Connect wallet first", "error"); return; }
+  try {
+    const gt = new ethers.Contract(ADDRESSES.govToken, GOV_TOKEN_ABI, signer);
+    const tx = await gt.delegate(account);
+    toast("Delegating… tx: " + tx.hash.slice(0, 10));
+    await tx.wait();
+    toast("Delegated to self!");
+    await refreshWallet();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+};
+
+// ─── Trade ───────────────────────────────────────────────────────────────────
+async function doTrade(isBuy) {
+  if (!signer) { toast("Connect wallet first", "error"); return; }
+  const marketId = document.getElementById("tradeMarketId").value;
+  const outcome  = parseInt(document.getElementById("tradeOutcome").value);
+  const amount   = document.getElementById("tradeAmount").value;
+  const minOut   = document.getElementById("tradeMinOut").value || "0";
+  if (!marketId || !amount) { toast("Fill all fields", "error"); return; }
+
+  try {
+    const amm = new ethers.Contract(ADDRESSES.amm, AMM_ABI, signer);
+    const col = new ethers.Contract(ADDRESSES.collateral, ERC20_ABI, signer);
+
+    if (isBuy) {
+      const tx0 = await col.approve(ADDRESSES.amm, amount);
+      await tx0.wait();
+      const tx = await amm.buyShares(marketId, outcome, amount, minOut);
+      toast("Buy tx: " + tx.hash.slice(0, 12));
+      await tx.wait();
+      toast("Shares bought!");
+    } else {
+      const tx = await amm.sellShares(marketId, outcome, amount, minOut);
+      toast("Sell tx: " + tx.hash.slice(0, 12));
+      await tx.wait();
+      toast("Shares sold!");
+    }
+    await refreshWallet();
+  } catch (e) {
+    toast(e.reason || e.message, "error");
+  }
+}
+document.getElementById("buyBtn").onclick  = () => doTrade(true);
+document.getElementById("sellBtn").onclick = () => doTrade(false);
+
+// ─── Liquidity ────────────────────────────────────────────────────────────────
+async function doLiquidity(isAdd) {
+  if (!signer) { toast("Connect wallet first", "error"); return; }
+  const marketId = document.getElementById("liqMarketId").value;
+  const amount   = document.getElementById("liqAmount").value;
+  if (!marketId || !amount) { toast("Fill all fields", "error"); return; }
+
+  try {
+    const amm = new ethers.Contract(ADDRESSES.amm, AMM_ABI, signer);
+    const col = new ethers.Contract(ADDRESSES.collateral, ERC20_ABI, signer);
+
+    if (isAdd) {
+      const tx0 = await col.approve(ADDRESSES.amm, amount);
+      await tx0.wait();
+      const tx = await amm.addLiquidity(marketId, amount);
+      toast("Add LP tx: " + tx.hash.slice(0, 12));
+      await tx.wait();
+      toast("Liquidity added!");
+    } else {
+      const tx = await amm.removeLiquidity(marketId, amount);
+      toast("Remove LP tx: " + tx.hash.slice(0, 12));
+      await tx.wait();
+      toast("Liquidity removed!");
+    }
+    await refreshWallet();
+  } catch (e) {
+    toast(e.reason || e.message, "error");
+  }
+}
+document.getElementById("addLiqBtn").onclick    = () => doLiquidity(true);
+document.getElementById("removeLiqBtn").onclick = () => doLiquidity(false);
+
+// ─── Pool Query ───────────────────────────────────────────────────────────────
+document.getElementById("poolQueryBtn").onclick = async () => {
+  if (!provider) { toast("Connect wallet first", "error"); return; }
+  const marketId = document.getElementById("poolMarketId").value;
+  try {
+    const amm = new ethers.Contract(ADDRESSES.amm, AMM_ABI, provider);
+    const [rY, rN, tot] = await amm.pools(marketId);
+    const fmt = (v) => parseFloat(ethers.utils.formatEther(v)).toFixed(4);
+    document.getElementById("resYes").textContent   = fmt(rY);
+    document.getElementById("resNo").textContent    = fmt(rN);
+    document.getElementById("resTotal").textContent = fmt(tot);
+  } catch (e) {
+    toast(e.message, "error");
+  }
+};
+
+// ─── The Graph: Markets ───────────────────────────────────────────────────────
+const MARKETS_QUERY = `{
+  markets(first: 20, orderBy: createdAt, orderDirection: desc) {
+    id question state winningOutcome createdAt
+    trades(first: 3, orderBy: timestamp, orderDirection: desc) {
+      trader amountIn isBuy outcome
+    }
+  }
+  protocolStats: protocolStats(id: "global") {
+    totalMarketsCreated totalTradeVolume totalFeesCollected totalLiquidityProvided
+  }
+}`;
+
+async function loadGraph() {
+  try {
+    const res = await fetch(GRAPH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: MARKETS_QUERY }),
+    });
+    const { data, errors } = await res.json();
+    if (errors) throw new Error(errors[0].message);
+
+    // Stats
+    const s = data.protocolStats;
+    if (s) {
+      const fmt18 = (v) => (parseFloat(v) / 1e18).toFixed(2);
+      document.getElementById("statMarkets").textContent  = s.totalMarketsCreated;
+      document.getElementById("statVolume").textContent   = fmt18(s.totalTradeVolume)  + " USDC";
+      document.getElementById("statFees").textContent     = fmt18(s.totalFeesCollected)+ " USDC";
+      document.getElementById("statLiquidity").textContent= fmt18(s.totalLiquidityProvided)+" USDC";
+    }
+
+    // Markets
+    const container = document.getElementById("marketsContainer");
+    if (!data.markets.length) {
+      container.innerHTML = "<p style='color:var(--muted);font-size:0.85rem'>No markets yet.</p>";
+      return;
+    }
+    container.innerHTML = data.markets.map(m => `
+      <div class="market-card">
+        <div class="market-header">
+          <div class="market-q">#${m.id} — ${escHtml(m.question)}</div>
+          <span class="badge badge-${m.state}">${m.state}</span>
+        </div>
+        <div class="market-meta">
+          Created: ${new Date(m.createdAt * 1000).toLocaleDateString()}
+          ${m.winningOutcome !== null ? " · Winner: " + (m.winningOutcome == 1 ? "YES" : "NO") : ""}
+          · Trades: ${m.trades.length}
+        </div>
+      </div>
+    `).join("");
+  } catch (e) {
+    document.getElementById("marketsContainer").innerHTML =
+      `<p style="color:var(--muted);font-size:0.85rem">Could not load from The Graph: ${escHtml(e.message)}</p>`;
+    document.getElementById("statMarkets").textContent = "-";
+  }
+}
+
+// ─── The Graph: Proposals ─────────────────────────────────────────────────────
+const PROPOSALS_QUERY = `{
+  governanceProposals(first: 10, orderBy: startBlock, orderDirection: desc) {
+    id proposer description state
+    forVotes againstVotes abstainVotes
+    startBlock endBlock executedAt
+  }
+}`;
+
+async function loadProposals() {
+  try {
+    const res = await fetch(GRAPH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: PROPOSALS_QUERY }),
+    });
+    const { data, errors } = await res.json();
+    if (errors) throw new Error(errors[0].message);
+
+    const container = document.getElementById("proposalsContainer");
+    if (!data.governanceProposals.length) {
+      container.innerHTML = "<p style='color:var(--muted);font-size:0.85rem'>No proposals yet.</p>";
+      return;
+    }
+    container.innerHTML = data.governanceProposals.map(p => {
+      const total = BigInt(p.forVotes) + BigInt(p.againstVotes) + BigInt(p.abstainVotes);
+      const pct   = total > 0n ? Number((BigInt(p.forVotes) * 10000n) / total) / 100 : 0;
+      const fmt   = (v) => (parseFloat(v) / 1e18).toFixed(1);
+      return `
+      <div class="prop-card">
+        <div class="market-header">
+          <div class="prop-desc">${escHtml(p.description.slice(0, 120))}${p.description.length > 120 ? "…" : ""}</div>
+          <span class="badge badge-${p.state === "Executed" ? "RESOLVED" : p.state === "Active" ? "ACTIVE" : "CREATED"}">${p.state}</span>
+        </div>
+        <div class="vote-bar"><div class="vote-fill" style="width:${pct}%"></div></div>
+        <div class="vote-stats">For: ${fmt(p.forVotes)} · Against: ${fmt(p.againstVotes)} · Abstain: ${fmt(p.abstainVotes)} (${pct.toFixed(1)}% approval)</div>
+      </div>`;
+    }).join("");
+  } catch (e) {
+    document.getElementById("proposalsContainer").innerHTML =
+      `<p style="color:var(--muted);font-size:0.85rem">Could not load proposals: ${escHtml(e.message)}</p>`;
+  }
+}
+
+// ─── Util ─────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+loadGraph();
+loadProposals();
+
+// Auto-reconnect if already authorized
+window.addEventListener("load", async () => {
+  if (!window.ethereum) return;
+  const accounts = await window.ethereum.request({ method: "eth_accounts" });
+  if (accounts.length) document.getElementById("connectBtn").click();
+});
+
+window.ethereum?.on("accountsChanged", () => location.reload());
+window.ethereum?.on("chainChanged",    () => location.reload());
+</script>
+</body>
+</html>

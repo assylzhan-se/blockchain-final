@@ -1,0 +1,65 @@
+type Market @entity {
+  id: ID!                       # marketId as string
+  question: String!
+  resolutionFeed: Bytes!
+  resolutionThreshold: BigInt!
+  state: String!                # CREATED | ACTIVE | DISPUTE | RESOLVED | CLOSED
+  winningOutcome: Int
+  initialLiquidity: BigInt!
+  createdAt: BigInt!
+  resolvedAt: BigInt
+  trades: [Trade!]! @derivedFrom(field: "market")
+}
+
+type Trade @entity {
+  id: ID!                       # txHash-logIndex
+  market: Market!
+  trader: Bytes!
+  outcome: Int!                 # 0=NO 1=YES
+  amountIn: BigInt!
+  amountOut: BigInt!
+  isBuy: Boolean!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type LiquidityPosition @entity {
+  id: ID!                       # marketId-providerAddress
+  market: Market!
+  provider: Bytes!
+  liquidity: BigInt!
+  lastUpdated: BigInt!
+}
+
+type GovernanceProposal @entity {
+  id: ID!                       # proposalId as string
+  proposer: Bytes!
+  description: String!
+  state: String!                # Pending | Active | Succeeded | Defeated | Queued | Executed | Canceled
+  forVotes: BigInt!
+  againstVotes: BigInt!
+  abstainVotes: BigInt!
+  startBlock: BigInt!
+  endBlock: BigInt!
+  executedAt: BigInt
+  votes: [ProposalVote!]! @derivedFrom(field: "proposal")
+}
+
+type ProposalVote @entity {
+  id: ID!                       # proposalId-voterAddress
+  proposal: GovernanceProposal!
+  voter: Bytes!
+  support: Int!                 # 0=Against 1=For 2=Abstain
+  weight: BigInt!
+  reason: String
+  timestamp: BigInt!
+}
+
+type ProtocolStats @entity {
+  id: ID!                       # "global"
+  totalMarketsCreated: BigInt!
+  totalTradeVolume: BigInt!
+  totalFeesCollected: BigInt!
+  totalLiquidityProvided: BigInt!
+  lastUpdated: BigInt!
+}
