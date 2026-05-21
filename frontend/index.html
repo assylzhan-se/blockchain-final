@@ -564,14 +564,7 @@ async function castVote(proposalId, support) {
 }
 
 //  The Graph: Markets 
-const MARKETS_QUERY = `{
-  marketCreateds(first: 20, orderBy: blockTimestamp, orderDirection: desc) {
-    id
-    marketId
-    question
-    blockTimestamp
-    transactionHash
-}`;
+const MARKETS_QUERY = `{ marketCreateds(first: 20) { id marketId question feed threshold transactionHash_ timestamp_ } }`;
 
 async function loadGraph() {
   try {
@@ -601,7 +594,7 @@ async function loadGraph() {
           <span class="badge badge-ACTIVE">CREATED</span>
         </div>
         <div class="market-meta">
-          Created: ${new Date(m.blockTimestamp * 1000).toLocaleDateString()}
+          Created: ${new Date(m.timestamp_ * 1000).toLocaleDateString()}
           · Tx: ${m.transactionHash.slice(0,12)}...
         </div>
       </div>
@@ -613,15 +606,7 @@ async function loadGraph() {
 }
 
 //  The Graph: Proposals 
-const PROPOSALS_QUERY = `{
-  roleGranteds(first: 10) {
-    id
-    role
-    account
-    blockTimestamp
-  }
-  }
-}`;
+const PROPOSALS_QUERY = `{ roleGranteds(first: 10) { id role account transactionHash_ timestamp_ } }`;
 
 async function loadProposals() {
   try {
