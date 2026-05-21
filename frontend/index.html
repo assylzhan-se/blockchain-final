@@ -565,15 +565,12 @@ async function castVote(proposalId, support) {
 
 //  The Graph: Markets 
 const MARKETS_QUERY = `{
-  markets(first: 20, orderBy: createdAt, orderDirection: desc) {
-    id question state winningOutcome initialLiquidity createdAt resolvedAt
-    trades(first: 3, orderBy: timestamp, orderDirection: desc) {
-      trader amountIn isBuy outcome timestamp
-    }
-  }
-  protocolStats(id: "global") {
-    totalMarketsCreated totalTradeVolume totalFeesCollected totalLiquidityProvided
-  }
+  marketCreateds(first: 20, orderBy: blockTimestamp, orderDirection: desc) {
+    id
+    marketId
+    question
+    blockTimestamp
+    transactionHash
 }`;
 
 async function loadGraph() {
@@ -586,31 +583,26 @@ async function loadGraph() {
     const { data, errors } = await res.json();
     if (errors) throw new Error(errors[0].message);
 
-    const s = data.protocolStats;
-    if (s) {
-      const fmt18 = (v) => (parseFloat(v) / 1e18).toFixed(2);
-      document.getElementById("statMarkets").textContent   = s.totalMarketsCreated;
-      document.getElementById("statVolume").textContent    = fmt18(s.totalTradeVolume) + " USDC";
-      document.getElementById("statFees").textContent      = fmt18(s.totalFeesCollected) + " USDC";
-      document.getElementById("statLiquidity").textContent = fmt18(s.totalLiquidityProvided) + " USDC";
-    }
+    const markets = data.marketCreateds;
+    document.getElementById("statMarkets").textContent = markets ? markets.length : "0";
+    document.getElementById("statVolume").textContent = "—";
+    document.getElementById("statFees").textContent = "—";
+    document.getElementById("statLiquidity").textContent = "—";
 
     const container = document.getElementById("marketsContainer");
-    if (!data.markets || !data.markets.length) {
+    if (!markets || !markets.length) {
       container.innerHTML = "<p style='color:var(--muted);font-size:0.85rem'>No markets yet.</p>";
       return;
     }
-    container.innerHTML = data.markets.map(m => `
+    container.innerHTML = markets.map(m => `
       <div class="market-card">
         <div class="market-header">
-          <div class="market-q">#${m.id} — ${escHtml(m.question)}</div>
-          <span class="badge badge-${m.state}">${m.state}</span>
+          <div class="market-q">#${m.marketId} — ${escHtml(m.question)}</div>
+          <span class="badge badge-ACTIVE">CREATED</span>
         </div>
         <div class="market-meta">
-          Created: ${new Date(m.createdAt * 1000).toLocaleDateString()}
-          · Liquidity: ${(parseFloat(m.initialLiquidity) / 1e18).toFixed(2)} USDC
-          ${m.winningOutcome !== null ? " · Winner: " + (m.winningOutcome == 1 ? "✅ YES" : "❌ NO") : ""}
-          · Recent trades: ${m.trades.length}
+          Created: ${new Date(m.blockTimestamp * 1000).toLocaleDateString()}
+          · Tx: ${m.transactionHash.slice(0,12)}...
         </div>
       </div>
     `).join("");
@@ -622,10 +614,12 @@ async function loadGraph() {
 
 //  The Graph: Proposals 
 const PROPOSALS_QUERY = `{
-  governanceProposals(first: 10, orderBy: startBlock, orderDirection: desc) {
-    id proposer description state
-    forVotes againstVotes abstainVotes
-    startBlock endBlock executedAt
+  roleGranteds(first: 10) {
+    id
+    role
+    account
+    blockTimestamp
+  }
   }
 }`;
 
