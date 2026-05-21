@@ -77,7 +77,7 @@ contract FeeVault is ERC4626, AccessControl, ReentrancyGuard {
         assets = super.redeem(shares, receiver, owner_);
     }
 
-    // ─── ERC-4626 rounding overrides ─────────────────────────────────────────
+    // ─── ERC-4626 rounding overrides 
 
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view override returns (uint256) {
         uint256 supply = totalSupply();

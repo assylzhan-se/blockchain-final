@@ -595,7 +595,7 @@ async function loadGraph() {
         </div>
         <div class="market-meta">
           Created: ${new Date(m.timestamp_ * 1000).toLocaleDateString()}
-          · Tx: ${m.transactionHash.slice(0,12)}...
+          · Tx: ${m.transactionHash_ ? m.transactionHash_.slice(0,12) : ''}...
         </div>
       </div>
     `).join("");

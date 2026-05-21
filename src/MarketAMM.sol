@@ -72,7 +72,7 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         _grantRole(PAUSER_ROLE, admin);
     }
 
-    // ─── Pool Management ──────────────────────────────────────────────────────
+    // ─── Pool Management 
 
     /// @notice Initialize a new pool with equal reserves (50/50 market)
     function initializePool(uint256 marketId, uint256 initialLiquidity)
@@ -98,7 +98,7 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         emit PoolInitialized(marketId, half, half);
     }
 
-    // ─── Trading ──────────────────────────────────────────────────────────────
+    // ─── Trading 
 
     /// @notice Buy outcome shares with collateral.
     /// @param marketId  The prediction market ID
@@ -187,7 +187,7 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         emit SharesSold(marketId, msg.sender, outcome, sharesIn, collateralOut);
     }
 
-    // ─── Liquidity ────────────────────────────────────────────────────────────
+    // ─── Liquidity 
 
     function addLiquidity(uint256 marketId, uint256 collateralAmount)
         external
@@ -258,7 +258,7 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         emit WinningsPaid(marketId, receiver, amount);
     }
 
-    // ─── View Functions ───────────────────────────────────────────────────────
+    // ─── View Functions 
 
     /// @notice Get price of outcome shares (as fraction of 1e18)
     function getPrice(uint256 marketId, uint8 outcome) external view returns (uint256 price) {
@@ -281,7 +281,7 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         amountOut = numerator / denominator;
     }
 
-    // ─── Governance ───────────────────────────────────────────────────────────
+    // ─── Governance 
 
     function pause() external onlyRole(PAUSER_ROLE) {
         _pause();
@@ -295,7 +295,7 @@ contract MarketAMM is AccessControl, ERC1155Holder, ReentrancyGuard, Pausable {
         return super.supportsInterface(interfaceId);
     }
 
-    // ─── Internal ─────────────────────────────────────────────────────────────
+    // ─── Internal 
 
     /// @notice Yul assembly implementation of getAmountOut for gas savings.
     ///         Formula: amountOut = (amountIn * reserveOut) / (reserveIn + amountIn)

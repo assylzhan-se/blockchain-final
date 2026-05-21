@@ -18,7 +18,7 @@ contract GovernanceToken is
     ERC20PermitUpgradeable,
     ERC20VotesUpgradeable,
     OwnableUpgradeable,
-    UUPSUpgradeable
+    UUPSUpgradeable 
 {
     /// @custom:storage-location erc7201:predictionmarket.storage.GovernanceToken
     struct GovernanceTokenStorage {
@@ -66,7 +66,7 @@ contract GovernanceToken is
     /// @dev Required by UUPS — only owner (Timelock) can upgrade
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 
-    // ─── Required overrides ───────────────────────────────────────────────────
+    // ─── Required overrides 
 
     function _update(address from, address to, uint256 value)
         internal

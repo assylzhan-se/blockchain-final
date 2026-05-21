@@ -80,7 +80,7 @@ contract PredictionMarket is AccessControl, ReentrancyGuard {
         _grantRole(DISPUTE_RESOLVER_ROLE, admin);
     }
 
-    // ─── State Machine Transitions ────────────────────────────────────────────
+    // ─── State Machine Transitions 
 
     /// @notice Create a new prediction market (CREATED state)
     function createMarket(
@@ -185,13 +185,13 @@ contract PredictionMarket is AccessControl, ReentrancyGuard {
         emit WinningsClaimed(marketId, msg.sender, shares);
     }
 
-    // ─── View ─────────────────────────────────────────────────────────────────
+    // ─── View 
 
     function getMarket(uint256 marketId) external view returns (Market memory) {
         return markets[marketId];
     }
 
-    // ─── Internal ─────────────────────────────────────────────────────────────
+    // ─── Internal 
 
     function _requireState(MarketState current, MarketState required) internal pure {
         if (current != required) revert InvalidState(current, required);
