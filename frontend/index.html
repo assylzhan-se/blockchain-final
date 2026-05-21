@@ -291,9 +291,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── Config ──────────────────────────────────────────────────────────────────
+//  Config 
 const OP_SEPOLIA_ID = 11155420;
-const GRAPH_URL = "https://api.studio.thegraph.com/query/YOUR_ID/prediction-market/v0.0.1";
+const GRAPH_URL = "https://api.goldsky.com/api/public/project_cmperlvzfn14h01za56t4d5av/subgraphs/prediction-market/1.0.0/gn";
 
 const ADDRESSES = {
   collateral:  "0x5fd84259d66Cd46123540766Be93DFE6D43130D7", // USDC on OP Sepolia
@@ -306,7 +306,7 @@ const ADDRESSES = {
   shareToken:  "0x554FD096F3Fcf4f0645a7aD939a829c70ad658AD",
 };
 
-// ─── ABIs ────────────────────────────────────────────────────────────────────
+//  ABIs 
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",
@@ -337,10 +337,10 @@ const GOVERNOR_ABI = [
   "function state(uint256 proposalId) view returns (uint8)",
 ];
 
-// ─── State ───────────────────────────────────────────────────────────────────
+//  State 
 let provider, signer, account;
 
-// ─── Toast ───────────────────────────────────────────────────────────────────
+//  Toast 
 function toast(msg, type = "success") {
   const el = document.getElementById("toast");
   el.textContent = msg;
@@ -349,7 +349,7 @@ function toast(msg, type = "success") {
   setTimeout(() => el.style.display = "none", 5000);
 }
 
-// ─── Load ethers ─────────────────────────────────────────────────────────────
+//  Load ethers 
 async function loadEthers() {
   if (window.ethers) return;
   await new Promise((res, rej) => {
@@ -360,7 +360,7 @@ async function loadEthers() {
   });
 }
 
-// ─── Connect Wallet ──────────────────────────────────────────────────────────
+//  Connect Wallet 
 document.getElementById("connectBtn").onclick = async () => {
   try {
     await loadEthers();
@@ -397,7 +397,7 @@ document.getElementById("connectBtn").onclick = async () => {
   }
 };
 
-// ─── Refresh wallet data ──────────────────────────────────────────────────────
+//  Refresh wallet data 
 async function refreshWallet() {
   if (!signer) return;
   try {
@@ -426,7 +426,7 @@ async function refreshWallet() {
   }
 }
 
-// ─── Write TX #1: Delegate ────────────────────────────────────────────────────
+//  Write TX #1: Delegate 
 document.getElementById("delegateBtn").onclick = async () => {
   if (!signer) { toast("Connect wallet first", "error"); return; }
   try {
@@ -439,7 +439,7 @@ document.getElementById("delegateBtn").onclick = async () => {
   } catch (e) { toast(e.reason || e.message, "error"); }
 };
 
-// ─── Write TX #2: Buy / Sell shares ──────────────────────────────────────────
+//  Write TX #2: Buy / Sell shares 
 async function doTrade(isBuy) {
   if (!signer) { toast("Connect wallet first", "error"); return; }
   const marketId = document.getElementById("tradeMarketId").value;
@@ -474,7 +474,7 @@ async function doTrade(isBuy) {
 document.getElementById("buyBtn").onclick  = () => doTrade(true);
 document.getElementById("sellBtn").onclick = () => doTrade(false);
 
-// ─── Write TX #3: FeeVault deposit / withdraw ─────────────────────────────────
+//  Write TX #3: FeeVault deposit / withdraw 
 async function doVault(isDeposit) {
   if (!signer) { toast("Connect wallet first", "error"); return; }
   const amount = document.getElementById("vaultAmount").value;
@@ -506,7 +506,7 @@ async function doVault(isDeposit) {
 document.getElementById("vaultDepositBtn").onclick  = () => doVault(true);
 document.getElementById("vaultWithdrawBtn").onclick = () => doVault(false);
 
-// ─── Liquidity ────────────────────────────────────────────────────────────────
+//  Liquidity 
 async function doLiquidity(isAdd) {
   if (!signer) { toast("Connect wallet first", "error"); return; }
   const marketId = document.getElementById("liqMarketId").value;
@@ -536,7 +536,7 @@ async function doLiquidity(isAdd) {
 document.getElementById("addLiqBtn").onclick    = () => doLiquidity(true);
 document.getElementById("removeLiqBtn").onclick = () => doLiquidity(false);
 
-// ─── Pool Query ───────────────────────────────────────────────────────────────
+//  Pool Query 
 document.getElementById("poolQueryBtn").onclick = async () => {
   if (!provider) { toast("Connect wallet first", "error"); return; }
   const marketId = document.getElementById("poolMarketId").value;
@@ -550,7 +550,7 @@ document.getElementById("poolQueryBtn").onclick = async () => {
   } catch (e) { toast(e.message, "error"); }
 };
 
-// ─── Vote on proposal (write TX #4) ──────────────────────────────────────────
+//  Vote on proposal (write TX #4) 
 async function castVote(proposalId, support) {
   if (!signer) { toast("Connect wallet first", "error"); return; }
   try {
@@ -563,7 +563,7 @@ async function castVote(proposalId, support) {
   } catch (e) { toast(e.reason || e.message, "error"); }
 }
 
-// ─── The Graph: Markets ───────────────────────────────────────────────────────
+//  The Graph: Markets 
 const MARKETS_QUERY = `{
   markets(first: 20, orderBy: createdAt, orderDirection: desc) {
     id question state winningOutcome initialLiquidity createdAt resolvedAt
@@ -620,7 +620,7 @@ async function loadGraph() {
   }
 }
 
-// ─── The Graph: Proposals ─────────────────────────────────────────────────────
+//  The Graph: Proposals 
 const PROPOSALS_QUERY = `{
   governanceProposals(first: 10, orderBy: startBlock, orderDirection: desc) {
     id proposer description state
@@ -673,12 +673,12 @@ async function loadProposals() {
   }
 }
 
-// ─── Util ─────────────────────────────────────────────────────────────────────
+//  Util 
 function escHtml(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
+//  Init 
 loadGraph();
 loadProposals();
 
